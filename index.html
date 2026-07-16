@@ -348,48 +348,263 @@
     to { transform: rotate(360deg); }
   }
 
-  .success-message {
-    display: none;
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    color: var(--primary-dark);
-    padding: 16px 20px;
-    border-radius: 10px;
-    margin-bottom: 24px;
-    font-weight: 600;
-    font-size: 14px;
-    border: 1px solid #6ee7b7;
-    animation: slideDown 0.4s ease-out;
+  /* ===== TOAST NOTIFICATION SYSTEM ===== */
+  .toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
   }
 
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .success-message.show {
+  .toast {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: var(--white);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.04);
+    min-width: 320px;
+    max-width: 420px;
+    pointer-events: all;
+    transform: translateX(120%) scale(0.9);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
   }
 
-  .success-message::before {
-    content: '✓';
+  .toast.show {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+
+  .toast.hide {
+    transform: translateX(120%) scale(0.9);
+    opacity: 0;
+  }
+
+  .toast::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 14px 0 0 14px;
+  }
+
+  .toast.success::before {
+    background: linear-gradient(to bottom, #10b981, #059669);
+  }
+
+  .toast.error::before {
+    background: linear-gradient(to bottom, #ef4444, #dc2626);
+  }
+
+  .toast-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: var(--accent);
-    color: white;
+    flex-shrink: 0;
+    animation: iconPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+  }
+
+  .toast.success .toast-icon {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+  }
+
+  .toast.error .toast-icon {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+  }
+
+  @keyframes iconPop {
+    from { transform: scale(0) rotate(-45deg); }
+    to { transform: scale(1) rotate(0deg); }
+  }
+
+  .toast-body {
+    flex: 1;
+  }
+
+  .toast-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .toast-message {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .toast-close {
+    background: none;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .toast-close:hover {
+    background: #f3f4f6;
+    color: var(--text);
+  }
+
+  .toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    border-radius: 0 0 14px 0;
+    animation: toastProgress 5s linear forwards;
+  }
+
+  .toast.error .toast-progress {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+  }
+
+  @keyframes toastProgress {
+    from { width: 100%; }
+    to { width: 0%; }
+  }
+
+  /* ===== CONFETTI CANVAS ===== */
+  #confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9998;
+  }
+
+  /* ===== SUCCESS OVERLAY ===== */
+  .success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 76, 58, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 9997;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .success-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .success-card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 48px 40px;
+    text-align: center;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+    transform: scale(0.5) translateY(40px);
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 400px;
+    width: 90%;
+  }
+
+  .success-overlay.active .success-card {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  .success-circle {
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    animation: successCirclePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+  }
+
+  @keyframes successCirclePop {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+  }
+
+  .success-circle svg {
+    width: 40px;
+    height: 40px;
+    color: #065f46;
+    animation: checkDraw 0.5s ease 0.6s both;
+  }
+
+  @keyframes checkDraw {
+    from { stroke-dashoffset: 50; opacity: 0; }
+    to { stroke-dashoffset: 0; opacity: 1; }
+  }
+
+  .success-card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .success-card p {
     font-size: 14px;
-    font-weight: bold;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .success-card button {
+    width: auto;
+    padding: 12px 32px;
+    font-size: 14px;
+  }
+
+  /* Ripple effect on button */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    transform: scale(0);
+    animation: rippleEffect 0.6s linear;
+    pointer-events: none;
+  }
+
+  @keyframes rippleEffect {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
   }
 
   /* Mobile Optimization */
@@ -421,12 +636,28 @@
     }
 
     input, select {
-      font-size: 16px; /* prevents iOS zoom */
+      font-size: 16px;
       padding: 16px;
     }
 
     .section {
       margin-bottom: 28px;
+    }
+
+    .toast-container {
+      top: 12px;
+      right: 12px;
+      left: 12px;
+    }
+
+    .toast {
+      min-width: unset;
+      max-width: unset;
+      width: 100%;
+    }
+
+    .success-card {
+      padding: 36px 28px;
     }
   }
 
@@ -436,20 +667,41 @@
       background: white;
       padding: 0;
     }
-    
+
     .container {
       box-shadow: none;
       max-width: 100%;
     }
-    
-    button, .header-badge {
-      display: none;
+
+    button, .header-badge, .toast-container, .success-overlay, #confetti-canvas {
+      display: none !important;
     }
   }
 </style>
+<base target="_blank">
 </head>
 
 <body>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Confetti Canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Success Overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <h2>Request Submitted!</h2>
+    <p>Your free Type C polo shirt request has been successfully recorded. Confirmation details have been sent to your email.</p>
+    <button onclick="closeSuccessOverlay()">Awesome, Thanks!</button>
+  </div>
+</div>
 
 <div class="container">
 
@@ -462,10 +714,6 @@
   </div>
 
   <form id="requestForm">
-    
-    <div id="successMessage" class="success-message">
-      Request submitted successfully! Confirmation details have been sent to your email.
-    </div>
 
     <div class="section">
       <div class="section-title">Employee Information</div>
@@ -595,7 +843,7 @@
 
     <div class="actions">
       <div class="button-wrapper">
-        <button type="submit">
+        <button type="submit" id="submitBtn">
           <span>Submit Request</span>
         </button>
       </div>
@@ -607,9 +855,165 @@
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbyo_93PIUg6I9XDzyXrrRjaOancSGccw0Qx086_kSn5vKKRtDq1zsqfEhgddaL_WMjjog/exec";
 const requestForm = document.getElementById("requestForm");
-const submitButton = requestForm.querySelector("button[type=submit]");
-const successMessage = document.getElementById("successMessage");
+const submitButton = document.getElementById("submitBtn");
+const toastContainer = document.getElementById("toastContainer");
+const successOverlay = document.getElementById("successOverlay");
+const confettiCanvas = document.getElementById("confetti-canvas");
+const ctx = confettiCanvas.getContext("2d");
 
+// ===== RIPPLE EFFECT =====
+submitButton.addEventListener("click", function(e) {
+  const rect = submitButton.getBoundingClientRect();
+  const ripple = document.createElement("span");
+  ripple.classList.add("ripple");
+  const size = Math.max(rect.width, rect.height);
+  ripple.style.width = ripple.style.height = size + "px";
+  ripple.style.left = (e.clientX - rect.left - size/2) + "px";
+  ripple.style.top = (e.clientY - rect.top - size/2) + "px";
+  submitButton.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 600);
+});
+
+// ===== TOAST NOTIFICATION =====
+function showToast(title, message, type = "success", duration = 5000) {
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+
+  const iconSvg = type === "success" 
+    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+
+  toast.innerHTML = `
+    <div class="toast-icon">${iconSvg}</div>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${message}</div>
+    </div>
+    <button class="toast-close" onclick="this.parentElement.remove()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <div class="toast-progress"></div>
+  `;
+
+  toastContainer.appendChild(toast);
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    toast.classList.add("show");
+  });
+
+  // Auto remove
+  const autoRemove = setTimeout(() => {
+    toast.classList.add("hide");
+    setTimeout(() => toast.remove(), 500);
+  }, duration);
+
+  // Close button clears timer
+  toast.querySelector(".toast-close").addEventListener("click", () => {
+    clearTimeout(autoRemove);
+    toast.classList.add("hide");
+    setTimeout(() => toast.remove(), 500);
+  });
+}
+
+// ===== CONFETTI ENGINE =====
+let confettiParticles = [];
+let confettiAnimationId = null;
+
+function resizeCanvas() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+class ConfettiParticle {
+  constructor() {
+    this.x = Math.random() * confettiCanvas.width;
+    this.y = -20;
+    this.size = Math.random() * 8 + 4;
+    this.speedY = Math.random() * 3 + 2;
+    this.speedX = Math.random() * 2 - 1;
+    this.rotation = Math.random() * 360;
+    this.rotationSpeed = Math.random() * 6 - 3;
+    this.opacity = 1;
+
+    const colors = ['#10b981', '#059669', '#0f4c3a', '#34d399', '#6ee7b7', '#fbbf24', '#f59e0b', '#3b82f6'];
+    this.color = colors[Math.floor(Math.random() * colors.length)];
+
+    this.shape = Math.random() > 0.5 ? 'rect' : 'circle';
+  }
+
+  update() {
+    this.y += this.speedY;
+    this.x += this.speedX + Math.sin(this.y * 0.01) * 0.5;
+    this.rotation += this.rotationSpeed;
+    this.opacity = Math.max(0, 1 - (this.y / confettiCanvas.height));
+  }
+
+  draw() {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate((this.rotation * Math.PI) / 180);
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = this.color;
+
+    if (this.shape === 'rect') {
+      ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size * 0.6);
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, this.size/2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+}
+
+function fireConfetti() {
+  confettiParticles = [];
+  for (let i = 0; i < 120; i++) {
+    setTimeout(() => {
+      confettiParticles.push(new ConfettiParticle());
+    }, i * 15);
+  }
+
+  if (!confettiAnimationId) {
+    animateConfetti();
+  }
+}
+
+function animateConfetti() {
+  ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+  confettiParticles = confettiParticles.filter(p => p.opacity > 0);
+
+  confettiParticles.forEach(p => {
+    p.update();
+    p.draw();
+  });
+
+  if (confettiParticles.length > 0) {
+    confettiAnimationId = requestAnimationFrame(animateConfetti);
+  } else {
+    confettiAnimationId = null;
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  }
+}
+
+// ===== SUCCESS OVERLAY =====
+function showSuccessOverlay() {
+  successOverlay.classList.add("active");
+  fireConfetti();
+}
+
+function closeSuccessOverlay() {
+  successOverlay.classList.remove("active");
+  requestForm.reset();
+  document.getElementById("status").value = "Pending";
+}
+
+// ===== FORM SUBMISSION =====
 requestForm.addEventListener("submit", function(e) {
   e.preventDefault();
 
@@ -640,14 +1044,26 @@ requestForm.addEventListener("submit", function(e) {
   })
   .then(res => res.json())
   .then(() => {
-    successMessage.classList.add('show');
-    requestForm.reset();
+    // Show toast notification
+    showToast(
+      "Request Submitted!",
+      "Your Type C polo shirt request has been successfully recorded.",
+      "success",
+      6000
+    );
+
+    // Show success overlay with confetti after brief delay
     setTimeout(() => {
-      successMessage.classList.remove('show');
-    }, 5000);
+      showSuccessOverlay();
+    }, 800);
   })
   .catch(() => {
-    alert("Error submitting request. Please try again.");
+    showToast(
+      "Submission Failed",
+      "Error submitting request. Please check your connection and try again.",
+      "error",
+      8000
+    );
   })
   .finally(() => {
     // Revert button state
